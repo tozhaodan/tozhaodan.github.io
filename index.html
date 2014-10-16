@@ -1,7 +1,516 @@
 <!DOCTYPE html>
 <html>
-<body>
 <h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+<meta charset="utf-8">
+
+<!-- Example based on http://bl.ocks.org/mbostock/3887118 -->
+<!-- Tooltip example from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html -->
+
+<style>
+    body {
+        font: 11px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .dot {
+        stroke: #000;
+    }
+
+    .tooltip {
+        position: absolute;
+        width: 200px;
+        height: 28px;
+        pointer-events: none;
+    }
+</style>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<body>
+<div>
+<div style="font-size:20px">x,y,color,size</div>
+<textarea rows="50" cols="30" id="content">
+sepalLength,petalLength,species,petalWidth
+5.1,1.4,setosa,0.2
+4.9,1.4,setosa,0.2
+4.7,1.3,setosa,0.2
+4.6,1.5,setosa,0.2
+5,1.4,setosa,0.2
+5.4,1.7,setosa,0.4
+4.6,1.4,setosa,0.3
+5,1.5,setosa,0.2
+4.4,1.4,setosa,0.2
+4.9,1.5,setosa,0.1
+5.4,1.5,setosa,0.2
+4.8,1.6,setosa,0.2
+4.8,1.4,setosa,0.1
+4.3,1.1,setosa,0.1
+5.8,1.2,setosa,0.2
+5.7,1.5,setosa,0.4
+5.4,1.3,setosa,0.4
+5.1,1.4,setosa,0.3
+5.7,1.7,setosa,0.3
+5.1,1.5,setosa,0.3
+5.4,1.7,setosa,0.2
+5.1,1.5,setosa,0.4
+4.6,1,setosa,0.2
+5.1,1.7,setosa,0.5
+4.8,1.9,setosa,0.2
+5,1.6,setosa,0.2
+5,1.6,setosa,0.4
+5.2,1.5,setosa,0.2
+5.2,1.4,setosa,0.2
+4.7,1.6,setosa,0.2
+4.8,1.6,setosa,0.2
+5.4,1.5,setosa,0.4
+5.2,1.5,setosa,0.1
+5.5,1.4,setosa,0.2
+4.9,1.5,setosa,0.2
+5,1.2,setosa,0.2
+5.5,1.3,setosa,0.2
+4.9,1.4,setosa,0.1
+4.4,1.3,setosa,0.2
+5.1,1.5,setosa,0.2
+5,1.3,setosa,0.3
+4.5,1.3,setosa,0.3
+4.4,1.3,setosa,0.2
+5,1.6,setosa,0.6
+5.1,1.9,setosa,0.4
+4.8,1.4,setosa,0.3
+5.1,1.6,setosa,0.2
+4.6,1.4,setosa,0.2
+5.3,1.5,setosa,0.2
+5,1.4,setosa,0.2
+7,4.7,versicolor,1.4
+6.4,4.5,versicolor,1.5
+6.9,4.9,versicolor,1.5
+5.5,4,versicolor,1.3
+6.5,4.6,versicolor,1.5
+5.7,4.5,versicolor,1.3
+6.3,4.7,versicolor,1.6
+4.9,3.3,versicolor,1
+6.6,4.6,versicolor,1.3
+5.2,3.9,versicolor,1.4
+5,3.5,versicolor,1
+5.9,4.2,versicolor,1.5
+6,4,versicolor,1
+6.1,4.7,versicolor,1.4
+5.6,3.6,versicolor,1.3
+6.7,4.4,versicolor,1.4
+5.6,4.5,versicolor,1.5
+5.8,4.1,versicolor,1
+6.2,4.5,versicolor,1.5
+5.6,3.9,versicolor,1.1
+5.9,4.8,versicolor,1.8
+6.1,4,versicolor,1.3
+6.3,4.9,versicolor,1.5
+6.1,4.7,versicolor,1.2
+6.4,4.3,versicolor,1.3
+6.6,4.4,versicolor,1.4
+6.8,4.8,versicolor,1.4
+6.7,5,versicolor,1.7
+6,4.5,versicolor,1.5
+5.7,3.5,versicolor,1
+5.5,3.8,versicolor,1.1
+5.5,3.7,versicolor,1
+5.8,3.9,versicolor,1.2
+6,5.1,versicolor,1.6
+5.4,4.5,versicolor,1.5
+6,4.5,versicolor,1.6
+6.7,4.7,versicolor,1.5
+6.3,4.4,versicolor,1.3
+5.6,4.1,versicolor,1.3
+5.5,4,versicolor,1.3
+5.5,4.4,versicolor,1.2
+6.1,4.6,versicolor,1.4
+5.8,4,versicolor,1.2
+5,3.3,versicolor,1
+5.6,4.2,versicolor,1.3
+5.7,4.2,versicolor,1.2
+5.7,4.2,versicolor,1.3
+6.2,4.3,versicolor,1.3
+5.1,3,versicolor,1.1
+5.7,4.1,versicolor,1.3
+6.3,6,virginica,2.5
+5.8,5.1,virginica,1.9
+7.1,5.9,virginica,2.1
+6.3,5.6,virginica,1.8
+6.5,5.8,virginica,2.2
+7.6,6.6,virginica,2.1
+4.9,4.5,virginica,1.7
+7.3,6.3,virginica,1.8
+6.7,5.8,virginica,1.8
+7.2,6.1,virginica,2.5
+6.5,5.1,virginica,2
+6.4,5.3,virginica,1.9
+6.8,5.5,virginica,2.1
+5.7,5,virginica,2
+5.8,5.1,virginica,2.4
+6.4,5.3,virginica,2.3
+6.5,5.5,virginica,1.8
+7.7,6.7,virginica,2.2
+7.7,6.9,virginica,2.3
+6,5,virginica,1.5
+6.9,5.7,virginica,2.3
+5.6,4.9,virginica,2
+7.7,6.7,virginica,2
+6.3,4.9,virginica,1.8
+6.7,5.7,virginica,2.1
+7.2,6,virginica,1.8
+6.2,4.8,virginica,1.8
+6.1,4.9,virginica,1.8
+6.4,5.6,virginica,2.1
+7.2,5.8,virginica,1.6
+7.4,6.1,virginica,1.9
+7.9,6.4,virginica,2
+6.4,5.6,virginica,2.2
+6.3,5.1,virginica,1.5
+6.1,5.6,virginica,1.4
+7.7,6.1,virginica,2.3
+6.3,5.6,virginica,2.4
+6.4,5.5,virginica,1.8
+6,4.8,virginica,1.8
+6.9,5.4,virginica,2.1
+6.7,5.6,virginica,2.4
+6.9,5.1,virginica,2.3
+5.8,5.1,virginica,1.9
+6.8,5.9,virginica,2.3
+6.7,5.7,virginica,2.5
+6.7,5.2,virginica,2.3
+6.3,5,virginica,1.9
+6.5,5.2,virginica,2
+6.2,5.4,virginica,2.3
+5.9,5.1,virginica,1.8
+</textarea>
+<input type="submit" onclick="plot()" value="Generate Scatter Plot">
+<script>
+    function plot() {
+        d3.select("svg")
+                .remove();
+
+        var test_data = $('#content').val();
+        var line_array = test_data.split("\n")
+        var column_name =  line_array[0].split(",")
+        var x_column = column_name[0];
+        var y_column = column_name[1];
+        var type_name = column_name[2];
+        var size_column = column_name[3];
+//        alert(type_name+x_column+y_column);
+
+        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+                width = 960 - margin.left - margin.right,
+                height = 500 - margin.top - margin.bottom;
+
+        /*
+         * value accessor - returns the value to encode for a given data object.
+         * scale - maps value to a visual display encoding, such as a pixel position.
+         * map function - maps from data value to display value
+         * axis - sets up axis
+         */
+
+        // setup x
+        var xValue = function (d) {
+                    return d[x_column];
+                }, // data -> value
+                xScale = d3.scale.linear().range([0, width]), // value -> display
+                xMap = function (d) {
+                    return xScale(xValue(d));
+                }, // data -> display
+                xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+
+        // setup y
+        var yValue = function (d) {
+                    return d[y_column];
+                }, // data -> value
+                yScale = d3.scale.linear().range([height, 0]), // value -> display
+                yMap = function (d) {
+                    return yScale(yValue(d));
+                }, // data -> display
+                yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+        // setup fill color
+        var cValue = function (d) {
+                    return d[type_name];
+                },
+                color = d3.scale.category10();
+
+        // add the graph canvas to the body of the webpage
+        var svg = d3.select("body").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // add the tooltip area to the webpage
+        var tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+        // load data
+        data = d3.csv.parse(test_data);
+        var max_size = d3.max(data, function(d) {return parseInt(d[size_column]);});
+        var min_size = d3.min(data, function(d) {return parseInt(d[size_column]);});
+//        alert(max_size+","+min_size);
+
+//        alert(d3.max(data, function(d) { return d[x_column];}));
+
+//        d3.csv("cereal.csv", function (error, data) {
+
+        // change string (from CSV) into number format
+        data.forEach(function (d) {
+            d[x_column] = +d[x_column];
+            d[y_column] = +d[y_column];
+            //    console.log(d);
+        });
+
+        // don't want dots overlapping axis, so add in buffer to data domain
+        xScale.domain([d3.min(data, xValue) - 1, d3.max(data, xValue) + 1]);
+        yScale.domain([d3.min(data, yValue) - 1, d3.max(data, yValue) + 1]);
+
+        // x-axis
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis)
+                .append("text")
+                .attr("class", "label")
+                .attr("x", width)
+                .attr("y", -6)
+                .style("text-anchor", "end")
+                .text(x_column);
+
+        // y-axis
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("class", "label")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text(y_column);
+
+        // draw dots
+        svg.selectAll(".dot")
+                .data(data)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("r", function (d){
+                    return 10 - ((parseInt(max_size-d[size_column]))/(max_size-min_size))*6;
+                })
+                .attr("cx", xMap)
+                .attr("cy", yMap)
+                .style("fill", function (d) {
+                    return color(cValue(d));
+                })
+                .on("mouseover", function (d) {
+                    tooltip.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+                    tooltip.html(d[type_name] + "<br/> (" + xValue(d)
+                            + ", " + yValue(d) + ")" + "<br/> size: " + d[size_column] )
+                            .style("left", (d3.event.pageX + 5) + "px")
+                            .style("top", (d3.event.pageY - 28) + "px");
+                })
+                .on("mouseout", function (d) {
+                    tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+                });
+
+        // draw legend
+        var legend = svg.selectAll(".legend")
+                .data(color.domain())
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function (d, i) {
+                    return "translate(0," + i * 20 + ")";
+                });
+
+        // draw legend colored rectangles
+        legend.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", color);
+
+        // draw legend text
+        legend.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(function (d) {
+                    return d;
+                })
+//        });
+    }
+</div>
+</script>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<div class="div-c">
+    <textarea rows="30" cols="30" id="content">
+        date,New York,San Francisco,Austin
+        20111001,63.4,62.7,72.2
+        20111002,58.0,59.9,67.7
+        20111003,53.3,59.1,69.4
+        20111004,55.7,58.8,68.0
+        20111005,64.2,58.7,72.4
+        20111006,58.8,57.0,77.0
+        20111007,57.9,56.7,82.3
+        20111008,61.8,56.8,78.9
+        20111009,69.3,56.7,68.8
+        20111010,71.2,60.1,68.7
+    </textarea>
+    <input type="submit" onclick="plot()" value="Generate Line Chart">
+</div>
+<div id="multiline" class="div-d" ></div>
+
+<script>
+
+    function plot() {
+
+        d3.select("svg")
+                .remove();
+
+        var test_data = $('#content').val();
+        var line_array = test_data.split("\n");
+        var column_name = line_array[0].split(",");
+        var first_column = column_name[0];
+
+        data = d3.csv.parse(test_data);
+        var margin = {
+                    top: 20,
+                    right: 80,
+                    bottom: 30,
+                    left: 50
+                },
+                width = 895 - margin.left - margin.right,
+                height = 355 - margin.top - margin.bottom;
+
+        var x = d3.scale.ordinal()
+                .rangeRoundBands([0, width]);
+
+        var y = d3.scale.linear()
+                .range([height, 0]);
+
+        var color = d3.scale.category10();
+
+        var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left");
+
+        var line = d3.svg.line()
+                .x(function (d) {
+                    return x(d.day);
+                })
+                .y(function (d) {
+                    return y(d.value);
+                })
+                .interpolate("linear");
+
+        var svg = d3.select("#multiline").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+        color.domain(d3.keys(data[0]).filter(function(key) { return key !== first_column; }));
+
+
+        var cities = color.domain().map(function(name) {
+            return {
+                label: name,
+                values: data.map(function(d) {
+                    return {day: d[first_column], value: +d[name]};
+                })
+            };
+        });
+
+
+        cities.forEach(function (kv) {
+            kv.values.forEach(function (d) {
+                d.value = +d.value;
+            });
+        });
+
+
+        var minY = d3.min(cities, function (kv) {
+            return d3.min(kv.values, function (d) {
+                return d.value;
+            })
+        });
+        var maxY = d3.max(cities, function (kv) {
+            return d3.max(kv.values, function (d) {
+                return d.value;
+            })
+        });
+
+        x.domain(cities[0].values.map(function (d) {
+            return d.day;
+        }));
+        y.domain([0, 1.3 * (maxY)]);
+
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end");
+
+        var city = svg.selectAll(".branch")
+                .data(cities)
+                .enter().append("g")
+                .attr("class", "branch");
+
+        city.append("path")
+                .attr("class", "line")
+                .attr("d", function (d) {
+                    return line(d.values);
+                })
+                .style("stroke", function (d) {
+                    return color(d.label);
+                })
+                .style("fill", "none");
+
+        city.append("text")
+                .datum(function (d) {
+                    return {label: d.label, value: d.values[d.values.length - 1]};
+                })
+                .attr("transform", function (d) {
+                    return "translate(" + x(d.value.day) + "," + y(d.value.value) + ")";
+                })
+                .attr("x", 3)
+                .attr("dy", ".35em")
+                .text(function (d) {
+                    return d.label;
+                });
+    }
+
+
+</script>
 </body>
+
+
 </html>

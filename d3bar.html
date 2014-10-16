@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    body {
+        font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .bar {
+        fill: steelblue;
+    }
+
+    .x.axis path {
+        display: none;
+    }
+
+</style>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<body>
+<textarea rows="50" cols="30" id="content">
+Neighborhood,Less than high school,High school graduate or GED,Some college,Bachelors degree,Masters degree or higher
+Acre,2225,2123,1484,802,260
+Back Central,1105,1221,810,292,145
+Centralville,2202,3709,2772,1195,509
+Downtown,596,526,1034,651,497
+Lower Belvidere,415,526,350,202,8
+Lower Highlands,1441,1178,744,250,174
+Pawtucketville,1602,3482,2524,1766,933
+South Lowell,1557,3079,2415,1307,443
+Upper Belvidere,520,1292,1378,1399,1004
+</textarea>
+<input type="submit" onclick="plot()" value="Generate Bar Chart">
+<script>
+
+    function plot() {
+
+        d3.select("svg")
+                .remove();
+
+        var test_data = $('#content').val();
+        var line_array = test_data.split("\n");
+        var column_name =  line_array[0].split(",");
+        var first_column = column_name[0];
+
+        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+                width = 960 - margin.left - margin.right,
+                height = 500 - margin.top - margin.bottom;
+
+        var x0 = d3.scale.ordinal()
+                .rangeRoundBands([0, width], .1);
+
+        var x1 = d3.scale.ordinal();
+
+        var y = d3.scale.linear()
+                .range([height, 0]);
+
+        var color = d3.scale.category20();
+
+        var xAxis = d3.svg.axis()
+                .scale(x0)
+                .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .tickFormat(d3.format(".2s"));
+
+        var svg = d3.select("body").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        data = d3.csv.parse(test_data);
+
+        var ageNames = d3.keys(data[0]).filter(function(key) { return key !== first_column; });
+
+        data.forEach(function(d) {
+            d.ages = ageNames.map(function(name) { return {name: name, value: +d[name]}; });
+        });
+
+        x0.domain(data.map(function(d) { return d[first_column]; }));
+        x1.domain(ageNames).rangeRoundBands([0, x0.rangeBand()]);
+        y.domain([0, d3.max(data, function(d) { return d3.max(d.ages, function(d) { return d.value; }); })]);
+
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Population");
+
+        var state = svg.selectAll(["."+first_column])
+                .data(data)
+                .enter().append("g")
+                .attr("class", "g")
+                .attr("transform", function(d) { return "translate(" + x0(d[first_column]) + ",0)"; });
+
+        state.selectAll("rect")
+                .data(function(d) { return d.ages; })
+                .enter().append("rect")
+                .attr("width", x1.rangeBand())
+                .attr("x", function(d) { return x1(d.name); })
+                .attr("y", function(d) { return y(d.value); })
+                .attr("height", function(d) { return height - y(d.value); })
+                .style("fill", function(d) { return color(d.name); });
+
+        var legend = svg.selectAll(".legend")
+                .data(ageNames.slice())
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+        legend.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", color);
+
+        legend.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(function(d) { return d; });
+
+    }
+
+</script>
+</body>
