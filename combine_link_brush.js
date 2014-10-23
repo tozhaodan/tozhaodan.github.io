@@ -1,5 +1,5 @@
 /**
- * Created by Peng on 10/20/14.
+ * Created by Dan on 10/20/14.
  */
 
 var group = ["Acre", "Back_Central", "Centralville", "Downtown", "Lower_Belvidere", "Lower_Highlands", "Pawtucketville", "South_Lowell", "Upper_Belvidere", "Upper_Highlands"];
