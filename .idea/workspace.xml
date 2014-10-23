@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8203007b-cbcf-4928-b003-424dbf0c5dc2" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test.html" afterPath="$PROJECT_DIR$/test.html" />
     </list>
     <ignored path="tozhaodan.github.io.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -74,8 +73,8 @@
       <file leaf-file-name="test.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="7.5297227" vertical-offset="495" max-vertical-offset="7845">
-              <caret line="413" column="37" selection-start-line="413" selection-start-column="37" selection-end-line="413" selection-end-column="37" />
+            <state vertical-scroll-proportion="7.351387" vertical-offset="0" max-vertical-offset="7830">
+              <caret line="371" column="31" selection-start-line="371" selection-start-column="31" selection-end-line="371" selection-end-column="31" />
               <folding />
             </state>
           </provider>
@@ -326,8 +325,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/test.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="7.5297227" vertical-offset="495" max-vertical-offset="7845">
-          <caret line="413" column="37" selection-start-line="413" selection-start-column="37" selection-end-line="413" selection-end-column="37" />
+        <state vertical-scroll-proportion="7.351387" vertical-offset="0" max-vertical-offset="7830">
+          <caret line="371" column="31" selection-start-line="371" selection-start-column="31" selection-end-line="371" selection-end-column="31" />
           <folding />
         </state>
       </provider>

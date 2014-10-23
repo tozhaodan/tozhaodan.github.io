@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>dashboard</title>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="combine_link_brush.js"></script>
+    <style>
+        body {
+            font: 11px sans-serif;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .dot {
+            stroke: #000;
+        }
+
+        .selecting circle.selected {
+            stroke: #000000;
+            stroke-width: 3px;
+        }
+
+
+        .extent {
+            stroke: #fff;
+            fill-opacity: .125;
+            shape-rendering: crispEdges;
+        }
+
+        .tooltip {
+            position: absolute;
+            width: 200px;
+            height: 28px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="content" style="display:inline-block"></div>
+    <div id="scatter" style="display:inline-block"></div>
+    <br>
+    <div id="bar" style="display:inline-block"></div>
+    <div id="line" style="display:inline-block"></div>
+    <script>
+        scatter();
+        bar();
+        line();
+    </script>
+</body>
+</html>
