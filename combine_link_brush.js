@@ -108,7 +108,7 @@ function scatter() {
             .text(y_column);
 
 
-
+        // add brush
         svg.append("g")
             .attr("class", "brush")
             .call(d3.svg.brush().x(xScale).y(yScale)
@@ -284,6 +284,7 @@ function bar(){
         .orient("left")
         .tickFormat(d3.format(".2s"));
 
+    //set plot area
     var svg = d3.select("#bar").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -295,6 +296,8 @@ function bar(){
         .style("opacity", 0);
 
     d3.csv("bar.csv", function(error, data) {
+
+        // tranlate data to useable format
         var ageNames = d3.keys(data[0]).filter(function(key) { return key !== group_name; });
 
         data.forEach(function(d) {
