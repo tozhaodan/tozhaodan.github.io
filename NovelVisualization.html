@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    .background {
+        fill: none;
+        pointer-events: all;
+    }
+
+    #states {
+        fill: #aaa;
+    }
+
+    #states .active {
+        fill: orange;
+    }
+
+    #state-borders {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 1.5px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        pointer-events: none;
+    }
+    .tooltip {
+        position: absolute;
+        width: 200px;
+        height: 28px;
+        pointer-events: none;
+    }
+
+</style>
+        <head><script src="http://d3js.org/d3.v3.min.js"></script>
+            <script src="http://d3js.org/topojson.v1.min.js"></script>
+            <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        </head>
+<body>
+
+<textarea rows="20" cols="70" id="map_data">
+Acre,Back_Central,Centralville,Downtown,Lower_Belvidere,Lower_Highlands,Pawtucketville,Sacred_Heart,South_Lowell,Upper_Belvidere,Upper_Highlands
+10387,55,0,450,13,77,0,83,109,67,0
+0,3988,200,90,89,0,340,78,0,87,70
+376,0,14230,85,0,34,0,74,342,201,134
+0,0,0,4103,98,32,15,0,54,0,0
+0,0,56,0,1788,34,0,69,131,56,94
+0,23,0,0,0,5211,73,112,0,56,0
+450,0,56,0,52,0,13765,78,47,0,223
+0,0,0,6,0,0,0,7201,16,67,27
+0,76,0,0,0,190,0,0,4918,55,86
+0,0,0,28,0,0,32,0,0,7723,23
+585,0,0,193,0,99,0,0,0,0,22491
+</textarea>
+<br>
+<input type="button" onclick= "plot();" id="plot" value="plot">
+<div id="map"></div>
+<script>
+
+    function plot() {
+        var tempSource = "";
+
+        var tooltip = d3.select("#map").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+
+//    var tooltip1 = d3.select("#map").append("div")
+//            .attr("class", "tooltip")
+//            .style("opacity", 0);
+//
+//    tooltip1.transition()
+//            .duration(200)
+//            .style("opacity", .9);
+//    tooltip1.html("Pawtucketville")
+//            .style("left", 236 + "px")
+//            .style("top", 539 + "px");
+
+        var width = 960,
+                height = 800,
+                centered;
+
+        var colors = d3.scale.category20();
+
+        var center = {};
+        center["Pawtucketville"] = [236, 281];
+        center["Upper_Highlands"] = [367, 505];
+        center["Acre"] = [497, 309];
+        center["Sacred_Heart"] = [653, 571];
+        center["South_Lowell"] = [810, 546];
+        center["Upper_Belvidere"] = [848, 368];
+        center["Centralville"] = [691, 195];
+        center["Lower_Belvidere"] = [701, 349];
+        center["Lower_Highlands"] = [528, 446];
+        center["Downtown"] = [630, 317];
+        center["Back_Central"] = [640, 412];
+
+        var lowell_data = $('#map_data').val();
+
+        var temp_array = lowell_data.split("\n")
+        console.log(temp_array);
+        var nameByIndex = temp_array[0].split(",");
+        console.log(nameByIndex);
+        length_matrix = {};
+        max_length = -1;
+        min_length = -1;
+        line_matrix = [];
+        population = {};
+
+        var tooltip_array = [];
+        for (var i = 0; i < 11; i++) {
+            tooltip_array.push(d3.select("#map").append("div")
+                    .attr("class", "tooltip")
+                    .style("opacity", 0));
+            tooltip_array[i].transition()
+                    .duration(200)
+                    .style("opacity", .9);
+            tooltip_array[i].html(nameByIndex[i])
+                    .style("left", center[nameByIndex[i]][0] - 20 + "px")
+                    .style("top", center[nameByIndex[i]][1] + 230 + "px");
+        }
+
+        for (var i = 1; i < temp_array.length; i++) {
+            if (temp_array[i].split(',').length == temp_array[i - 1].split(',').length) {
+
+                var line_array = temp_array[i].split(',');
+                for (var j = 0; j < line_array.length; j++) {
+                    if (parseInt(line_array[j]) > 0 && j != i - 1) {
+//                    console.log(i-1,j);
+//                    console.log([center[nameByIndex[i-1]], center[nameByIndex[j]]]);
+                        line_matrix.push([center[nameByIndex[j]], center[nameByIndex[i - 1]]]);
+                        length_matrix[nameByIndex[j] + " " + nameByIndex[i - 1]] = parseInt(line_array[j]);
+                    }
+                    if (i - 1 == j) {
+//                    console.log(nameByIndex[i-1]);
+                        population[nameByIndex[i - 1]] = line_array[j];
+                    }
+                }
+            }
+
+        }
+//    console.log(population);
+
+//    console.log(line_matrix);
+//    console.log(length_matrix);
+        color_array = {};
+        center_name_reverse = {};
+        indexByName = {}
+        for (var i = 0; i < nameByIndex.length; i++) {
+            console.log(nameByIndex[i]);
+            indexByName[nameByIndex[i]] = i;
+            color_array[center[nameByIndex[i]]] = colors(i % 20);
+            center_name_reverse[center[nameByIndex[i]]] = nameByIndex[i];
+        }
+        console.log("center_name_reverse", center_name_reverse);
+
+
+//    var projection = d3.geo.albersUsa()
+//            .scale(1070)
+//            .translate([width / 2, height / 2]);
+
+        var path = d3.geo.path()
+                .projection(null);
+
+        var svg = d3.select("#map").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+        svg.append("rect")
+                .attr("class", "background")
+                .attr("width", width)
+                .attr("height", height)
+                .on("click", clicked);
+
+        var g = svg.append("g");
+
+
+        var index_color = -1;
+
+        d3.json("lowell.json", function (error, us) {
+            g.append("g")
+                    .attr("id", "states")
+                    .selectAll("path")
+                    .data(topojson.feature(us, us.objects.lowell).features)
+                    .enter().append("path")
+                    .attr("d", path)
+                    .attr("fill", function (d) {
+                        return colors(indexByName[index(d.geometry.coordinates[0][0], d.geometry.coordinates[0][1])] % 20);
+                    })
+                    .style("opacity", 0.6)
+                    .on("click", clicked)
+//                    .on("mouseover", function (d) {
+//                        tooltip.transition()
+//                                .duration(200)
+//                                .style("opacity", .9);
+//                        tooltip.html(
+//                                "original residents: " + population[index(d.geometry.coordinates[0][0], d.geometry.coordinates[0][1])])
+//                                .style("left", (d3.event.pageX + 5) + "px")
+//                                .style("top", (d3.event.pageY - 28) + "px");
+//                    })
+//                    .on("mouseout", function (d) {
+//                        tooltip.transition()
+//                                .duration(500)
+//                                .style("opacity", 0);
+//                    })
+                        ;
+            g.append("path")
+                    .datum(topojson.mesh(us, us.objects.lowell, function (a, b) {
+                        return a !== b;
+                    }))
+                    .attr("id", "state-borders")
+                    .attr("d", path)
+                    .attr("color", "red");
+            for (var i = 0; i < line_matrix.length; i++) {
+                g.append("path")
+                        .datum({type: "LineString", coordinates: [line_matrix[i][0], line_matrix[i][1]]})
+                        .attr("class", function () {
+                            console.log("route-" + center_name_reverse[line_matrix[i][0]] + "-" + center_name_reverse[line_matrix[i][1]]);
+                            return "route-" + center_name_reverse[line_matrix[i][0]] + "-" + center_name_reverse[line_matrix[i][1]];
+                        })
+                        .attr("d", path)
+                        .attr("stroke", color_array[line_matrix[i][0]])
+//                    .attr("border", 1)
+                        .style('stroke-width', 1)
+//                    .style("fill", color_array[line_matrix[i][0]])
+                        .style("fill", "red")
+                        .on("mouseover", function (d) {
+                            console.log(d);
+                            tooltip.transition()
+                                    .duration(200)
+                                    .style("opacity", 1);
+
+                            tooltip.html("From :" + center_name_reverse[d.coordinates[0]] + "<br> To: " + center_name_reverse[d.coordinates[1]] + "<br>" +
+                            "Migration: " + length_matrix[center_name_reverse[d.coordinates[0]] + " " + center_name_reverse[d.coordinates[1]]])
+                                    .style("left", (d3.event.pageX + 5) + "px")
+                                    .style("top", (d3.event.pageY - 28) + "px")
+                                    .style("fill", "red");
+                        }).on("mouseout", function (d) {
+                            tooltip.transition()
+                                    .duration(500)
+                                    .style("opacity", 0);
+                        });
+            }
+//
+//        var_line_index = 0;
+//        g.append("path")
+//                .datum({type: "MultiLineString", coordinates:
+//                        line_matrix
+////                        [[[236,281],[367,505]],
+////                            [[236,281],[497,309]]] // points in decimal degrees
+//                })
+//                .attr("d", path)
+//                .style({'fill': '#B10000', 'fill-opacity': 0.5})
+//                .style('stroke-width', function(d,i){
+//
+//                })
+//                .style('stroke', function(d, i){
+//                    console.log(i);
+//                    return colors(14);
+//                })
+//                .style({'stroke-linejoin': 'round'});
+        });
+
+
+        function index(array, array2) {
+//        console.log(array, array2);
+            if (array[0] == 518.413841384137 && array[1] == 116.71830388951457) {
+                return "Pawtucketville";
+            }
+            else if (array[0] == 449.31493149314787 && array[1] == 350.9750051985962
+                    && array2[0] == 451.1551155115497 && array2[1] == 356.35866969291584) {
+                return "Upper_Highlands";
+            } else if (array[0] == 690.2870287028688 && array[1] == 405.14812917268716
+                    && array2[0] == 692.5872587258712 && array2[1] == 404.8789459479712) {
+                return "Sacred_Heart";
+            } else if (array[0] == 733.1633163316318 && array[1] == 644.3174243328355) {
+                return "South_Lowell";
+            } else if (array[0] == 707.9527952795265 && array[1] == 284.62134030610713) {
+                return "Upper_Belvidere";
+            } else if (array[0] == 817.9037903790365 && array[1] == 253.26149462669548) {
+                return "Centralville";
+            } else if (array[0] == 449.31493149314787 && array[1] == 350.9750051985962) {
+                return "Acre";
+            } else if (array[0] == 554.9414941494135 && array[1] == 360.8001929007295) {
+                return "Lower_Highlands";
+            } else if (array[0] == 571.7791779177903 && array[1] == 379.03735637523715) {
+                return "Downtown";
+            } else if (array[0] == 678.2338233823368 && array[1] == 341.14981749646296) {
+                return "Back_Central";
+            } else if (array[0] == 690.2870287028688 && array[1] == 405.14812917268716) {
+                return "Lower_Belvidere";
+            }
+
+        }
+
+        function clicked(d) {
+
+            console.log(d3.event.pageX, d3.event.pageY);
+
+            if (tempSource != "") {
+                nameByIndex.forEach(function (entry) {
+                    g.selectAll("path.route-" + tempSource + "-" + entry).style("stroke-width", 1);
+                    g.selectAll("path.route-" + entry + "-" + tempSource).style("stroke-width", 1);
+                })
+            }
+
+            var x, y, k;
+
+            if (d && centered !== d) {
+                var centroid = path.centroid(d);
+                x = centroid[0];
+                y = centroid[1];
+                k = 4;
+                centered = d;
+            } else {
+                x = width / 2;
+                y = height / 2;
+                k = 1;
+                centered = null;
+            }
+
+//        g.selectAll("path")
+//                .classed("active", centered && function(d) { return d === centered; });
+
+            console.log(index(d.geometry.coordinates[0][0], d.geometry.coordinates[0][1]));
+            tempSource = index(d.geometry.coordinates[0][0], d.geometry.coordinates[0][1]);
+            nameByIndex.forEach(function (entry) {
+
+                g.selectAll("path.route-" + index(d.geometry.coordinates[0][0], d.geometry.coordinates[0][1]) + "-" + entry).style("stroke-width", 5);
+                g.selectAll("path.route-" + entry + "-" + index(d.geometry.coordinates[0][0], d.geometry.coordinates[0][1])).style("stroke-width", 5);
+            })
+
+
+            console.log("path.route-" + index(d.geometry.coordinates[0][0], d.geometry.coordinates[0][1]));
+            console.log(g.selectAll("path.route-" + index(d.geometry.coordinates[0][0], d.geometry.coordinates[0][1])));
+
+//        g.transition()
+//                .duration(750)
+//                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+//                .style("stroke-width", 1.5 / k + "px");
+        }
+    }
+
+</script>
